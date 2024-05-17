@@ -10,6 +10,9 @@ const baseConfig = {
             type: 'umd',
         },
     },
+    experiments: {
+        asyncWebAssembly: true,
+    },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
     },
@@ -28,6 +31,13 @@ const nodeJsBundleConfig = {
     ...baseConfig,
     entry: {
         'aws-lsp-codewhisperer-binary': path.join(__dirname, 'src/index.ts'),
+        fqnExtractorWorker: '@aws/lsp-fqn/out/node/fqnExtractorWorker.js',
+    },
+    resolve: {
+        ...baseConfig.resolve,
+        alias: {
+            '@aws/fully-qualified-names$': '@aws/fully-qualified-names/node/aws_fully_qualified_names.js',
+        },
     },
     target: 'node',
 }
