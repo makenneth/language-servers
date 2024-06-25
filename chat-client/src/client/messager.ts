@@ -81,13 +81,16 @@ export class Messager {
         this.chatApi.telemetry({ ...params, tabId, name: SEND_TO_PROMPT_TELEMETRY_EVENT })
     }
 
-    onChatPrompt = (params: ChatParams, triggerType?: string): void => {
-        // Let the server know about the latest trigger interaction on the tabId
-        this.chatApi.telemetry({
-            triggerType: triggerType ?? 'click',
-            tabId: params.tabId,
-            name: ADD_MESSAGE_TELEMETRY_EVENT,
-        })
+    onChatPrompt = (params: ChatParams, triggerType?: string | 'follow-up'): void => {
+        if (triggerType !== 'follow-up') {
+            // Let the server know about the latest trigger interaction on the tabId
+            // except for follow up, which has its own telemetry and the trigger would be the same as the previous message
+            this.chatApi.telemetry({
+                triggerType: triggerType ?? 'click',
+                tabId: params.tabId,
+                name: ADD_MESSAGE_TELEMETRY_EVENT,
+            })
+        }
 
         this.chatApi.sendChatPrompt(params)
     }

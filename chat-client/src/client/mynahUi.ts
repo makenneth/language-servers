@@ -36,7 +36,7 @@ export const handleChatPrompt = (
     tabId: string,
     prompt: ChatPrompt,
     messager: Messager,
-    triggerType?: TriggerType,
+    triggerType?: TriggerType | 'follow-up',
     _eventId?: string
 ) => {
     if (prompt.command) {
@@ -116,7 +116,14 @@ export const createMynahUi = (messager: Messager, tabFactory: TabFactory): [Myna
                 messager.onAuthFollowUpClicked(payload)
             } else {
                 const prompt = followUp.prompt ? followUp.prompt : followUp.pillText
-                handleChatPrompt(mynahUi, tabId, { prompt: prompt, escapedPrompt: prompt }, messager, 'click', eventId)
+                handleChatPrompt(
+                    mynahUi,
+                    tabId,
+                    { prompt: prompt, escapedPrompt: prompt },
+                    messager,
+                    'follow-up',
+                    eventId
+                )
 
                 const payload: FollowUpClickParams = {
                     tabId,
