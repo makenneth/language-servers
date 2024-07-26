@@ -1,17 +1,19 @@
-import { EditorState } from '@amzn/codewhisperer-streaming'
 import * as assert from 'assert'
 import sinon from 'ts-sinon'
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { DocumentContext, DocumentContextExtractor } from './documentContext'
+import { DocumentContext, TriggerContextExtractor } from './triggerContextExtractor'
 import { DocumentFqnExtractor } from './documentFqnExtractor'
+import { TestFeatures } from '@aws/language-server-runtimes/testing'
 
 describe('DocumentContext', () => {
+    let features: TestFeatures
     const mockTypescriptCodeBlock = `function test() {
     console.log('test')
 }`
     const mockTSDocument = TextDocument.create('file://test.ts', 'typescript', 1, mockTypescriptCodeBlock)
 
     beforeEach(() => {
+        features = new TestFeatures()
         sinon.stub(DocumentFqnExtractor.prototype, 'extractDocumentSymbols').resolves([])
     })
 
@@ -19,9 +21,15 @@ describe('DocumentContext', () => {
         sinon.restore()
     })
 
-    describe('documentContextExtractor.extractEditorState', () => {
+    describe('TriggerContextExtractor.getTriggerContext', () => {
+        it('returns user intent if prompt starts with certain words', () => {})
+
+        it('able to return state if editor state is not provided', () => {})
+    })
+
+    describe('TriggerContextExtractor.extractEditorState', () => {
         it('extracts editor state for range selection', async () => {
-            const documentContextExtractor = new DocumentContextExtractor({ characterLimits: 19 })
+            const documentContextExtractor = new TriggerContextExtractor(features.workspace, { characterLimits: 19 })
             const expected: DocumentContext = {
                 programmingLanguage: { languageName: 'typescript' },
                 relativeFilePath: 'file://test.ts',
@@ -61,7 +69,7 @@ describe('DocumentContext', () => {
         })
 
         it('extracts editor state for collapsed position', async () => {
-            const documentContextExtractor = new DocumentContextExtractor({ characterLimits: 19 })
+            const documentContextExtractor = new TriggerContextExtractor(features.workspace, { characterLimits: 19 })
             const expected: DocumentContext = {
                 programmingLanguage: { languageName: 'typescript' },
                 relativeFilePath: 'file://test.ts',
@@ -101,7 +109,7 @@ describe('DocumentContext', () => {
         })
 
         it('returns undefined cursorState if the end position was collapsed', async () => {
-            const documentContextExtractor = new DocumentContextExtractor({ characterLimits: 0 })
+            const documentContextExtractor = new TriggerContextExtractor(features.workspace, { characterLimits: 0 })
 
             const expected: DocumentContext = {
                 programmingLanguage: { languageName: 'typescript' },
@@ -131,7 +139,7 @@ describe('DocumentContext', () => {
     })
 
     it('handles other languages correctly', async () => {
-        const documentContextExtractor = new DocumentContextExtractor({ characterLimits: 19 })
+        const documentContextExtractor = new TriggerContextExtractor(features.workspace, { characterLimits: 19 })
 
         const mockGoCodeBLock = `func main() {
     fmt.Println("test")
